@@ -4,27 +4,27 @@
 #include "c_basic_stencil_window.h"
 #include "c_stencil.h"
 
-LINK_ENTITY_TO_CLASS(point_stencil_window, BasicStencilWindow);
+LINK_ENTITY_TO_CLASS(point_stencil_window, C_BasicStencilWindow);
 
-IMPLEMENT_CLIENTCLASS_DT(BasicStencilWindow, DT_BasicStencilWindow, CPointStencilMirror)
+IMPLEMENT_CLIENTCLASS_DT(C_BasicStencilWindow, DT_BasicStencilWindow, CPointStencilMirror)
 RecvPropEHandle(RECVINFO(m_hFriend)),
 RecvPropBool(RECVINFO(m_bActive)),
 RecvPropFloat(RECVINFO(m_fHalfWidth)),
 RecvPropFloat(RECVINFO(m_fHalfHeight)),
 END_RECV_TABLE()
 
-BasicStencilWindow::BasicStencilWindow()
+C_BasicStencilWindow::C_BasicStencilWindow()
 {
 	DevMsg("Portal Created!!!");
 	g_pStencilTool->m_Windows.AddToTail(this);
 }
 
-void BasicStencilWindow::SpawnClientEntity(void)
+void C_BasicStencilWindow::SpawnClientEntity(void)
 {
 	BaseClass::SpawnClientEntity();
 }
 
-void BasicStencilWindow::DrawStencil()
+void C_BasicStencilWindow::DrawStencil()
 {
 	float forwardOffset = 0.1;
 	const IMaterial* pMaterial = materials->FindMaterial("", "", false); // literally just yoink an error texture, TODO: actually make this get a real material

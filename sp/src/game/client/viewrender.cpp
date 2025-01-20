@@ -78,8 +78,8 @@
 #include "mapbase/c_func_fake_worldportal.h"
 #include "colorcorrectionmgr.h"
 
-#include "c_stencil.h"
-#include "c_basic_stencil_window.h"
+#include "mapbase/c_stencil.h"
+#include "mapbase/c_basic_stencil_window.h"
 #endif
 
 // Projective textures

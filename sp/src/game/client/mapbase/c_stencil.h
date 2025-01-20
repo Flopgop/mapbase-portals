@@ -6,7 +6,7 @@
 class StencilTool {
 public:
 	int m_iRecursionLevel;
-	CUtlVector<BasicStencilWindow*> m_Windows;
+	CUtlVector<C_BasicStencilWindow*> m_Windows;
 	void SetupInitialStencilRendering(IMatRenderContext* pRenderContext, int ref);
 	void SetStencilReferenceValue(IMatRenderContext* pRenderContext, int ref);
 	void ClearDepthBuffer(IMatRenderContext* pRenderContext, int ref);

@@ -7,7 +7,7 @@ StencilTool* g_pStencilTool = &s_StencilTool;
 
 CON_COMMAND(dump_stencil_info, "Dumps misc debug info about all stencils.") {
 	for (int i = 0; i < g_pStencilTool->m_Windows.Size(); ++i) {
-		BasicStencilWindow* window = g_pStencilTool->m_Windows[i];
+		C_BasicStencilWindow* window = g_pStencilTool->m_Windows[i];
 		Msg("Stencil %d:\n", i);
 		Msg("\tPosition: %f %f %f\n", window->GetAbsOrigin().x, window->GetAbsOrigin().y, window->GetAbsOrigin().z);
 		Msg("\tActive: %s\n", window->m_bActive ? "true" : "false");

@@ -3,11 +3,11 @@
 
 #include "cbase.h"
 
-class BasicStencilWindow : public C_BaseEntity {
-	DECLARE_CLASS(BasicStencilWindow, C_BaseEntity);
+class C_BasicStencilWindow : public C_BaseEntity {
+	DECLARE_CLASS(C_BasicStencilWindow, C_BaseEntity);
 	DECLARE_CLIENTCLASS();
 public:
-	BasicStencilWindow();
+	C_BasicStencilWindow();
 
 	void DrawStencil();
 	virtual void SpawnClientEntity(void);
