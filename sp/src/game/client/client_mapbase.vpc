@@ -71,6 +71,11 @@ $Project
 			$File	"mapbase\c_vgui_text_display.cpp"
 			$File	"mapbase\c_weapon_custom_hl2.cpp"
 			$File	"mapbase\mapbase_autocubemap.cpp"
+			
+			$File   "mapbase\c_stencil.h"
+			$File   "mapbase\c_stencil.cpp"
+			$File   "mapbase\c_basic_stencil_window.h"
+			$File   "mapbase\c_basic_stencil_window.cpp"
 		}
 		
 		$Folder "HL2 DLL"

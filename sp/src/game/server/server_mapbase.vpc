@@ -92,6 +92,8 @@ $Project
 			
 			$File	"mapbase\logic_eventlistener.cpp"
 			$File	"mapbase\logic_register_activator.cpp"
+
+			$File   "mapbase\point_stencil_window.cpp"
 		}
 		
 		$Folder "HL2 DLL"
