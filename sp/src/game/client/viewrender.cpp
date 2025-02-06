@@ -77,6 +77,9 @@
 #ifdef MAPBASE
 #include "mapbase/c_func_fake_worldportal.h"
 #include "colorcorrectionmgr.h"
+
+#include "mapbase/c_point_stencil_mirror.h"
+#include "mapbase/c_stencil.h"
 #endif
 
 // Projective textures
@@ -4961,6 +4964,102 @@ void CRendering3dView::DrawTranslucentRenderables( bool bInSkybox, bool bShadowD
 		}
 	}
 #else
+#ifdef MAPBASE // portals
+	if (g_pStencilTool->m_Windows.Size() > 0 && g_pStencilTool->m_iRecursionLevel < r_max_stencil_recursion.GetInt()) {
+		CMatRenderContextPtr pRenderContext(materials);
+		pRenderContext->Flush(true);
+
+		const CViewSetup* viewSetup = m_pMainView->GetViewSetup();
+		CViewSetup viewBackup;
+		memcpy(&viewBackup, viewSetup, sizeof(CViewSetup));
+
+		g_pStencilTool->SetupInitialStencilRendering(pRenderContext, g_pStencilTool->m_iRecursionLevel);
+		for (int i = 0; i < g_pStencilTool->m_Windows.Size(); ++i) {
+			C_PointStencilMirror* window = g_pStencilTool->m_Windows[i];
+			if (!window->m_bActive || !window->m_hFriend) {
+				continue;
+			}
+			g_pStencilTool->SetStencilReferenceValue(pRenderContext, g_pStencilTool->m_iRecursionLevel);
+			window->DrawStencil();
+			g_pStencilTool->m_iRecursionLevel += 1;
+			g_pStencilTool->ClearDepthBuffer(pRenderContext, g_pStencilTool->m_iRecursionLevel);
+
+			CViewSetup windowView = *viewSetup;
+
+			VMatrix angleMatrix;
+
+			matrix3x4_t meToFriend = window->EntityToWorldTransform();
+			matrix3x4_t friendToMe = window->m_hFriend->EntityToWorldTransform();
+
+			VMatrix temp1, temp2, rotation;
+			MatrixInverseTR(meToFriend, temp1);
+
+			rotation.Identity();
+			rotation.m[0][0] = -1.0f;
+			rotation.m[1][1] = -1.0f;
+
+			temp2 = friendToMe;
+
+			VMatrix tempAngleMatrix = temp2 * rotation * temp1;
+			MatrixInverseTR(tempAngleMatrix, angleMatrix);
+
+			Vector ptCameraOrigin = angleMatrix * viewSetup->origin;
+
+			QAngle angles = TransformAnglesToWorldSpace(viewSetup->angles, angleMatrix.As3x4());
+			windowView.zNear = 1.0f;
+			windowView.origin = ptCameraOrigin;
+			windowView.angles = angles;
+			
+			if (r_drawtranslucentrenderables.GetInt() == 2)
+				debugoverlay->AddTextOverlay(window->GetAbsOrigin(), 0.0f, "window %d", i);
+
+			// we still need the forward vector for clip planes, and the right one for some fixing up of a weird af bug
+			Vector m_vForward, m_vRight;
+			window->m_hFriend->GetVectors(&m_vForward, &m_vRight, NULL);
+
+			// this is BASICALLY guaranteed, but if some god forsaken event happens where this isn't true then I'd like to fail safe
+			if (C_PointStencilMirror* friendWindow = dynamic_cast<C_PointStencilMirror*>(window->m_hFriend.Get())) {
+				windowView.origin += m_vRight * friendWindow->m_fHalfWidth * 2.0f;
+			}
+
+			float clipPlane[4];
+			clipPlane[0] = m_vForward.x;
+			clipPlane[1] = m_vForward.y;
+			clipPlane[2] = m_vForward.z;
+			clipPlane[3] = m_vForward.Dot(window->m_hFriend->GetAbsOrigin() - (m_vForward * 0.5f));
+
+			pRenderContext->PushCustomClipPlane(clipPlane);
+
+			render->Push3DView(windowView, 0, nullptr, m_pMainView->GetFrustum());
+
+			render->OverrideViewFrustum(m_pMainView->GetFrustum());
+
+			VisibleFogVolumeInfo_t fogInfo;
+			render->GetVisibleFogVolume(windowView.origin, &fogInfo);
+
+			WaterRenderInfo_t waterInfo;
+			m_pMainView->DetermineWaterRenderInfo(fogInfo, waterInfo);
+
+			CSimpleWorldView* pClientView = new CSimpleWorldView(m_pMainView);
+			pClientView->Setup(windowView, VIEW_CLEAR_OBEY_STENCIL, true, fogInfo, waterInfo, nullptr);
+			m_pMainView->AddViewToScene(pClientView);
+			SafeRelease(pClientView);
+
+			render->PopView(m_pMainView->GetFrustum());
+
+			memcpy((void*)viewSetup, &viewBackup, sizeof(CViewSetup));
+			g_pStencilTool->SetupInitialStencilRendering(pRenderContext, g_pStencilTool->m_iRecursionLevel); // basically just reset everything
+			pRenderContext->SetStencilCompareFunction(STENCILCOMPARISONFUNCTION_EQUAL);
+			pRenderContext->SetStencilPassOperation(STENCILOPERATION_KEEP);
+			g_pStencilTool->RestoreStencilMask(pRenderContext, g_pStencilTool->m_iRecursionLevel);
+
+			pRenderContext->PopCustomClipPlane();
+			g_pStencilTool->m_iRecursionLevel -= 1;
+		}
+		pRenderContext->Flush(true);
+	}
+#endif
+
 	{
 		//opaques generally write depth, and translucents generally don't.
 		//So immediately after opaques are done is the best time to snap off the depth buffer to a texture.

@@ -492,8 +492,15 @@ private:
 	void			Draw3dSkyboxworld_Portal( const CViewSetup &view, int &nClearFlags, bool &bDrew3dSkybox, SkyboxVisibility_t &nSkyboxVisible, ITexture *pRenderTarget = NULL );
 #endif // PORTAL
 
+#ifdef MAPBASE // HACK: this is private, breaks portals
+	public:
+#endif // MAPBASE
 	// Determines what kind of water we're going to use
 	void			DetermineWaterRenderInfo( const VisibleFogVolumeInfo_t &fogVolumeInfo, WaterRenderInfo_t &info );
+#ifdef MAPBASE
+	private:
+#endif // MAPBASE
+
 
 	bool			UpdateRefractIfNeededByList( CUtlVector< IClientRenderable * > &list );
 	void			DrawRenderablesInList( CUtlVector< IClientRenderable * > &list, int flags = 0 );

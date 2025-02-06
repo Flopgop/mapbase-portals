@@ -83,6 +83,7 @@ $Project
 			//$File	"mapbase\point_physics_control.cpp" // Backlogged
 			$File	"mapbase\point_projectile.cpp"
 			$File	"mapbase\point_radiation_source.cpp"
+			$File   "mapbase\point_stencil_mirror.cpp"
 			$File	"mapbase\point_glow.cpp"
 			$File	"mapbase\SystemConvarMod.cpp"
 			$File	"mapbase\SystemConvarMod.h"
